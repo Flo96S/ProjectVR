@@ -17,7 +17,7 @@ type Game struct {
 // Maze, CreationDate, GameKey, ConnectedUsers
 func CreateGame(size int) Game {
 	var game Game
-	createdmaze := maze.GenerateMazeWithExit(size)
+	createdmaze := maze.GetMazeWithRandomExitNew(size)
 	game.Maze = createdmaze
 	game.CreateDate = time.Now()
 	game.Id = classes.GenerateId()
