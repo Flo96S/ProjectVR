@@ -1,3 +1,10 @@
+import { GenerateStartWalls } from './entrywalls.mjs'
+import * as THREE from '../three.module.min.js';
+
+const mazeX = -1, mazeY = -2;
+const boxsizexy = 0.10;
+const boxsizez = 0.5;
+
 export function GetMazeSimple() {
    const maze_one = [
       [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
@@ -137,8 +144,15 @@ export function GetMazeWithRandomExit(size) {
    maze[0][1] = 2; // Eingang
 
    // Füge einen zufälligen Ausgang hinzu
-   const exitSide = Math.floor(Math.random() * 4); // Wähle eine Seite: 0=oben, 1=rechts, 2=unten, 3=links
+   let exitSide = Math.floor(Math.random() * 4); // Wähle eine Seite: 0=oben, 1=rechts, 2=unten, 3=links
+   if (exitSide == 0) {
+      exitSide = 2;
+   }
+   if (exitSide == 3) {
+      exitSide = 1;
+   }
    let exitX, exitY;
+   console.log(exitSide);
    switch (exitSide) {
       case 0: // Oben
          exitX = 0;
@@ -158,6 +172,46 @@ export function GetMazeWithRandomExit(size) {
          break;
    }
    maze[exitX][exitY] = 3; // Ausgang
+   const keyX = 2 * Math.floor(Math.random() * (size / 2)) + 1;
+   const keyY = 2 * Math.floor(Math.random() * (size / 2)) + 1;
+   maze[keyX][keyY] = 7; // Schlüssel
 
    return maze;
+}
+
+export function GenerateMazeStructure(scene, maze) {
+   let x = 0;
+   let y = 0;
+   GenerateStartWalls(scene);
+   for (let row of maze) {
+      for (let cell of row) {
+         if (cell == 0) {
+            const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
+            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0xff3333 }))
+            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            scene.add(object);
+         }
+         else if (cell == 2) {
+            const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
+            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x33ff33 }))
+            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            scene.add(object);
+         }
+         else if (cell == 3) {
+            const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
+            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
+            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            scene.add(object);
+         }
+         else if (cell == 7) {
+            const boxg = new THREE.SphereGeometry(0.05, 16, 16);
+            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
+            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            scene.add(object);
+         }
+         y++;
+      }
+      x++;
+      y = 0;
+   }
 }

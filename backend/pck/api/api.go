@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"maze/pck/classes"
 	"maze/pck/game"
+	"maze/pck/maze"
 	"net/http"
 	"strconv"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,9 +17,15 @@ var Games []game.Game
 
 func StartApi() {
 	r := gin.Default()
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"} // Update this to allow specific origins instead of all (*)
+
+	r.Use(cors.New(config))
+
 	r.GET("/", getdefault)
 	r.GET("/get", get)
 	r.GET("/open", open)
+	r.GET("/getrandom", getRandom)
 
 	r.POST("/join", join)
 
@@ -25,7 +33,6 @@ func StartApi() {
 	r.POST("/login", login)
 	r.POST("/create", create)
 	r.DELETE("/delete", delete)
-
 	r.Run(":8181")
 }
 
@@ -127,4 +134,9 @@ func update(c *gin.Context) {
 	}
 	fmt.Println("Nothing found")
 	c.JSON(http.StatusBadRequest, "")
+}
+
+func getRandom(c *gin.Context) {
+	mazegen := maze.GetMazeWithRandomExitNew(8)
+	c.JSON(http.StatusOK, mazegen)
 }
