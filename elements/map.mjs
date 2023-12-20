@@ -1,4 +1,4 @@
-import * as THREE from '../three.module.min.js';
+import * as THREE from 'three';
 
 let size = 0.5
 let mazeX = 0;

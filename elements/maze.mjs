@@ -1,9 +1,9 @@
 import { GenerateStartWalls } from './entrywalls.mjs'
-import * as THREE from '../three.module.min.js';
+import * as THREE from 'three';
 
-const mazeX = -1, mazeY = -2;
-const boxsizexy = 0.10;
-const boxsizez = 0.5;
+const mazeX = -1, mazeY = -2, mazeZ = 0.05;
+const boxsizexy = 0.1;
+const boxsizez = 0.2;
 
 export function GetMazeSimple() {
    const maze_one = [
@@ -188,25 +188,25 @@ export function GenerateMazeStructure(scene, maze) {
          if (cell == 0) {
             const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0xff3333 }))
-            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.position.set((x * boxsizexy) + mazeX, mazeZ, (y * boxsizexy) + mazeY);
             scene.add(object);
          }
          else if (cell == 2) {
             const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x33ff33 }))
-            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.position.set((x * boxsizexy) + mazeX, mazeZ, (y * boxsizexy) + mazeY);
             scene.add(object);
          }
          else if (cell == 3) {
             const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
-            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.position.set((x * boxsizexy) + mazeX, mazeZ, (y * boxsizexy) + mazeY);
             scene.add(object);
          }
          else if (cell == 7) {
             const boxg = new THREE.SphereGeometry(0.05, 16, 16);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
-            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.position.set((x * boxsizexy) + mazeX, mazeZ, (y * boxsizexy) + mazeY);
             scene.add(object);
          }
          y++;
