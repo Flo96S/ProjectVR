@@ -3,6 +3,7 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 export function CreatePlayer(scene, _position, _rotation) {
+   let height = 185;
    let position = _position;
    let rotation = { x: 0, y: 0, z: 0 };
    let leftHandPosition = { x: 0, y: 0, z: 0 };
@@ -14,23 +15,35 @@ export function CreatePlayer(scene, _position, _rotation) {
    let controllerLeft = undefined;
    let controllerRight = undefined;
    let player = new THREE.Group();
+   let color = '0xff0000';
 
    function LoadHeadset() {
-      let obj = undefined;
       const loader = new GLTFLoader();
       loader.load('./models/headset.glb', function (gltf) {
-         obj = gltf.scene;
-         //obj.position.set(position.x, 1, position.z);
-         obj.scale.set(0.15, 0.15, 0.15);
-         obj.position.set(0, 0.18, 0);
+         let obj = gltf.scene;
+         obj.scale.set(0.05, 0.05, 0.05);
+         obj.position.set(0, height / 1000, 0);
          player.add(obj);
       }, undefined, function (error) {
          console.error("could not load model");
       });
    }
 
+   function LoadBody() {
+      const loader = new GLTFLoader();
+      loader.load('./models/body.glb', function (gltf) {
+         let obj = gltf.scene;
+         obj.scale.set(0.075, 0.1, 0.05);
+         obj.position.set(0, (height / 2000) - 0.1, 0);
+         player.add(obj);
+      }, undefined, function (error) {
+         console.error("Could not load model");
+      })
+   }
+
    function createPlayer() {
       const headset = LoadHeadset();
+      const body = LoadBody();
       player.matrixAutoUpdate = false;
       player.updateMatrix();
       player.position.set(position.x, position.y, position.z);
@@ -38,10 +51,10 @@ export function CreatePlayer(scene, _position, _rotation) {
          console.log("Added headset");
          player.add(headset);
       }
-      const body = new THREE.BoxGeometry(0.25, 0.15, 0.25);
-      const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      const cube = new THREE.Mesh(body, material);
-      player.add(cube);
+      //const body = new THREE.BoxGeometry(0.06, 0.185, 0.06);
+      //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+      //const cube = new THREE.Mesh(body, material);
+      player.position.set(0, height / 1000 / 2, 0)
       scene.add(player);
    }
 
