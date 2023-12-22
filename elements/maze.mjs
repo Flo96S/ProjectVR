@@ -180,6 +180,8 @@ export function GetMazeWithRandomExit(size) {
 }
 
 export function GenerateMazeStructure(scene, maze) {
+   const texture = new THREE.TextureLoader().load('assets/beton/material.png');
+   const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0xbbbbbb });
    let mazegroup = new THREE.Group();
    let x = 0;
    let y = 0;
@@ -188,14 +190,16 @@ export function GenerateMazeStructure(scene, maze) {
       for (let cell of row) {
          if (cell == 0) {
             const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
-            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0xff3333 }))
+            const object = new THREE.Mesh(boxg, basicmaterial);
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.castShadow = true;
             mazegroup.add(object);
          }
          else if (cell == 2) {
             const boxg = new THREE.BoxGeometry(boxsizexy / 2, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x33ff33 }))
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.castShadow = true;
             mazegroup.add(object);
          }
          else if (cell == 3) {
@@ -203,11 +207,13 @@ export function GenerateMazeStructure(scene, maze) {
                const boxg = new THREE.BoxGeometry(boxsizexy / 2, boxsizez, boxsizexy);
                const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
                object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+               object.castShadow = true;
                mazegroup.add(object);
             } else if (y + 1 == maze.length) {
                const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy / 2);
                const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
                object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+               object.castShadow = true;
                mazegroup.add(object);
             }
          }
@@ -215,6 +221,7 @@ export function GenerateMazeStructure(scene, maze) {
             const boxg = new THREE.SphereGeometry(0.05, 16, 16);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.castShadow = true;
             mazegroup.add(object);
          }
          y++;

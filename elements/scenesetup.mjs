@@ -3,9 +3,9 @@ import { CreateSky } from './sky.mjs';
 
 export function GenerateScene(scene) {
    //scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
-   scene.add(new THREE.HemisphereLight(0xaaaaaa, 0xaaaaaa));
-   let light = new THREE.DirectionalLight(0xffffff);
-   light.position.set(0, 6, 0);
+   scene.add(new THREE.HemisphereLight(0xaaaaaa, 0xaaaaaa, 1));
+   let light = new THREE.DirectionalLight(0xffffff, 0.75);
+   light.position.set(0, 8, 0);
    light.castShadow = true;
    scene.add(light);
    CreateSky(scene);
@@ -16,10 +16,12 @@ export function GenerateScene(scene) {
 }
 
 export function GenerateFloor(scene) {
-   const groundGeo = new THREE.PlaneGeometry(20, 20, 64);
-   const groundMat = new THREE.MeshStandardMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-   const ground = new THREE.Mesh(groundGeo, groundMat);
-   ground.position.set(0, 0, -1);
+   const texture = new THREE.TextureLoader().load('assets/beton/floor.png');
+   const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0x777777 });
+   basicmaterial.needsUpdate = true;
+   const groundGeo = new THREE.PlaneGeometry(10, 10, 64);
+   const ground = new THREE.Mesh(groundGeo, basicmaterial);
+   ground.position.set(2, 0, 1.75);
    ground.receiveShadow = true;
    ground.rotation.x = -Math.PI / 2;
    scene.add(ground);
