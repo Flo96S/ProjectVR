@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
 import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { createVRcontrollers } from './controlls.mjs';
 
 export function CreatePlayer(scene, _position, _rotation) {
    let height = 185;
@@ -19,7 +20,6 @@ export function CreatePlayer(scene, _position, _rotation) {
    let color = '0xff0000';
    let camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
    scene.add(camera);
-   return camera;
 
    function Update() {
 
@@ -51,6 +51,8 @@ export function CreatePlayer(scene, _position, _rotation) {
 
    function Init() {
       createPlayer();
+      //Create controller left
+      controllerLeft, controllerRight = createVRcontrollers(scene,);
    }
 
    function createPlayer() {
@@ -66,9 +68,15 @@ export function CreatePlayer(scene, _position, _rotation) {
       scene.add(player);
    }
 
+   function updatePosition(x, y, z) {
+      camera.position.set(x, y, z)
+   }
+
    function initControllers() {
 
    }
 
    Init();
+
+   return { camera, updatePosition };
 }

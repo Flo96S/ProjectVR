@@ -44,8 +44,8 @@ window.onload = function () {
    MAZE.GenerateMazeStructure(scene, maze);
 
    //Player
-   camera = USER.CreatePlayer(scene, playerStartPos, { x: 0, y: 0, z: 0 });
-
+   let playerinfo = USER.CreatePlayer(scene, playerStartPos, { x: 0, y: 0, z: 0 });
+   camera = playerinfo.camera;
    //Models
    //OBJECTS.Load(scene);
    if (!vr) {
@@ -69,8 +69,8 @@ window.onload = function () {
       if (!vr) {
          controls.update();
       }
-      camera.position.set(0, 1.6, 0);
       renderer.render(scene, camera);
+      playerinfo.updatePosition(camerapos.x, camerapos.y, camerapos.z);
       console.log(camera.position);
    }
    renderer.setAnimationLoop(render);
