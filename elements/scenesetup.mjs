@@ -9,10 +9,6 @@ export function GenerateScene(scene) {
    light.castShadow = true;
    scene.add(light);
    CreateSky(scene);
-   let camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-   //camera.lookAt(0, 0, 0);
-   scene.add(camera);
-   return camera;
 }
 
 export function GenerateFloor(scene) {

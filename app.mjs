@@ -16,10 +16,13 @@ let renderer = new THREE.WebGLRenderer({
    alpha: false
 });
 
+const MOVESCALE = 0.001;
 let camerapos = { x: -1.75, y: 0.18, z: -2 };
 let spawnArea = { xstart: -2, ystart: -2.1, xsize: 1.75, ysize: 1.5 };
+let vr = true;
 let experimental = false;
 let playerStartPos = { x: -2.5, y: 0, z: -2.5 };
+let camera = undefined;
 
 function updateCamera() {
 
@@ -32,25 +35,22 @@ window.onload = function () {
 
    let lever = LEVER.CreateLever(scene, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, () => { });
    //Scene setup
-   let camera = DEFAULT.GenerateScene(scene);
+   DEFAULT.GenerateScene(scene);
    //Ground setup
    DEFAULT.GenerateFloor(scene);
-   camera.position.set(2, 2, 2);
-   camera.lookAt(1, 1, 1);
    //Maze setup
    let mazesize = 24; //Should be 48 max
    const maze = MAZE.GetMazeWithRandomExit(mazesize / 2);
    MAZE.GenerateMazeStructure(scene, maze);
 
    //Player
-   let char = USER.CreatePlayer(scene, playerStartPos, 0);
+   camera = USER.CreatePlayer(scene, playerStartPos, { x: 0, y: 0, z: 0 });
 
    //Models
    //OBJECTS.Load(scene);
-
-   const controls = new OrbitControls(camera, renderer.domElement);
-
-   const MOVESCALE = 0.001;
+   if (!vr) {
+      const controls = new OrbitControls(camera, renderer.domElement);
+   }
 
    renderer.shadowMap.enabled = true;
    renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -61,12 +61,17 @@ window.onload = function () {
 
    document.body.appendChild(renderer.domElement);
    document.body.appendChild(VRButton.createButton(renderer));
-
-   controls.update();
+   if (!vr) {
+      controls.update();
+   }
 
    function render() {
-      controls.update();
+      if (!vr) {
+         controls.update();
+      }
+      camera.position.set(0, 1.6, 0);
       renderer.render(scene, camera);
+      console.log(camera.position);
    }
    renderer.setAnimationLoop(render);
 };

@@ -6,7 +6,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 export function CreatePlayer(scene, _position, _rotation) {
    let height = 185;
    let position = _position;
-   let rotation = { x: 0, y: 0, z: 0 };
+   let rotation = _rotation;
    let leftHandPosition = { x: 0, y: 0, z: 0 };
    let RightHandPosition = { x: 0, y: 0, z: 0 };
    let BagLeft = -1;
@@ -17,6 +17,9 @@ export function CreatePlayer(scene, _position, _rotation) {
    let controllerRight = undefined;
    let player = new THREE.Group();
    let color = '0xff0000';
+   let camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+   scene.add(camera);
+   return camera;
 
    function Update() {
 
