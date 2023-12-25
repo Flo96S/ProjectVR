@@ -1,9 +1,9 @@
 import { GenerateStartWalls } from './entrywalls.mjs'
 import * as THREE from 'three';
 
-const mazeX = -1, mazeY = -2, mazeZ = 0.05;
-const boxsizexy = 0.2;
-const boxsizez = 0.35;
+const mazeX = -10, mazeY = -10, mazeZ = 0.05;
+const boxsizexy = 1.6;
+const boxsizez = 2.35;
 
 export function GetMazeSimple() {
    const maze_one = [
@@ -218,7 +218,7 @@ export function GenerateMazeStructure(scene, maze) {
             }
          }
          else if (cell == 7) {
-            const boxg = new THREE.SphereGeometry(0.05, 16, 16);
+            const boxg = new THREE.SphereGeometry(0.6, 16, 16);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
             object.castShadow = true;

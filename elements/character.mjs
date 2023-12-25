@@ -4,7 +4,7 @@ import { XRHandModelFactory } from 'three/addons/webxr/XRHandModelFactory.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { createVRcontrollers } from './controlls.mjs';
 
-export function CreatePlayer(scene, _position, _rotation) {
+export function CreatePlayer(scene, _position, _rotation, renderer) {
    let height = 185;
    let position = _position;
    let rotation = _rotation;
@@ -52,7 +52,7 @@ export function CreatePlayer(scene, _position, _rotation) {
    function Init() {
       createPlayer();
       //Create controller left
-      controllerLeft, controllerRight = createVRcontrollers(scene,);
+      controllerLeft, controllerRight = createVRcontrollers(scene, renderer, () => { });
    }
 
    function createPlayer() {
