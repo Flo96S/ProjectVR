@@ -29,8 +29,8 @@ export function CreatePlayer(scene, _position, _rotation, renderer) {
       const loader = new GLTFLoader();
       loader.load('./models/headset.glb', function (gltf) {
          let obj = gltf.scene;
-         obj.scale.set(0.05, 0.05, 0.05);
-         obj.position.set(0, height / 1000, 0);
+         obj.scale.set(0.5, 0.5, 0.5);
+         obj.position.set(0, height / 100, 0);
          player.add(obj);
       }, undefined, function (error) {
          console.error("could not load model");
@@ -41,7 +41,7 @@ export function CreatePlayer(scene, _position, _rotation, renderer) {
       const loader = new GLTFLoader();
       loader.load('./models/body.glb', function (gltf) {
          let obj = gltf.scene;
-         obj.scale.set(0.075, 0.1, 0.05);
+         obj.scale.set(0.65, 1, 0.6);
          obj.position.set(0, (height / 2000) - 0.1, 0);
          player.add(obj);
       }, undefined, function (error) {
