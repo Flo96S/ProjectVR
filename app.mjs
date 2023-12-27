@@ -24,7 +24,7 @@ let playerStartPos = { x: -14.7, y: 0, z: -9.615 };
 let camera = undefined;
 
 function updateCamera() {
-
+   //Update vr camera
 }
 
 renderer.xr.addEventListener('sessionstart', () => {
