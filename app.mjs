@@ -9,56 +9,94 @@ import { MapItem } from './elements/map.mjs';
 import { VRButton } from './jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as LEVER from './elements/button.mjs';
+
+const MOVESCALE = 0.001;
+let camerapos = { x: 0, y: 1.6, z: 0 };
+let vr = false;
+let experimental = false;
+let playerStartPos = { x: 0, y: 0, z: 0 };
+let camera = undefined;
+let offset = { x: 15, y: 0, z: 10 };
+//New scene
+let scene = new THREE.Scene();
+let totalmaze = new THREE.Group();
+
+let lever = LEVER.CreateLever(totalmaze, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, () => { });
+
+let skycam = false;
+
 //1.6 = 1.6m
 let renderer = new THREE.WebGLRenderer({
    antialias: true,
    alpha: false
 });
 
-const MOVESCALE = 0.001;
-let camerapos = { x: -1.75, y: 1.6, z: -2 };
-let spawnArea = { xstart: -2, ystart: -2.1, xsize: 1.75, ysize: 1.5 };
-let vr = false;
-let experimental = false;
-let playerStartPos = { x: -14.7, y: 0, z: -9.615 };
-let camera = undefined;
+document.addEventListener('keydown', (e) => {
+   console.log(e.key);
+   if (e.key == "ArrowLeft") {
+      offset.x -= 0.5;
+   } else if (e.key == "ArrowRight") {
+      offset.x += 0.5;
+   } else if (e.key == "ArrowUp") {
+      offset.z -= 0.5;
+   } else if (e.key == "ArrowDown") {
+      offset.z += 0.5;
+   } else if (e.key == "s") {
+      lever.changeState();
+   }
+})
 
-function updateCamera() {
-   //Update vr camera
+
+function updateVRCamera() {
+   totalmaze.position.x = offset.x;
+   totalmaze.position.y = offset.y;
+   totalmaze.position.z = offset.z;
 }
 
 renderer.xr.addEventListener('sessionstart', () => {
-   if (camera == undefined) {
-      renderer.xr.getCamera.position.set(1, 1.6, 1);
+   console.log("Start VR");
+   if (camera === undefined) {
+      renderer.xr.getCamera().position.set(1, 1.6, 1);
    } else {
-      renderer.xr.getCamera().position.copy(camera);
+      // const baseReference = renderer.xr.getReferenceSpace();
+      // const offset = camera.position;
+      // const offsetrot = camera.quaternion;
+      // const transform = new XRRigidTransform(offset, { x: offsetrot.x, y: -(offsetrot.y), z: offset.z, w: offset.w });
+      // const teleportSpaceOffset = baseReference.getOffsetReferenceSpace(transform);
+      // renderer.xr.setReferenceSpace(teleportSpaceOffset);
+      console.log("FOUND CAMERA");
    }
 });
 
 
 window.onload = function () {
-   //New scene
-   let scene = new THREE.Scene();
 
-   let lever = LEVER.CreateLever(scene, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, () => { });
    //Scene setup
-   DEFAULT.GenerateScene(scene);
+   DEFAULT.GenerateScene(totalmaze);
    //Ground setup
-   DEFAULT.GenerateFloor(scene);
+   DEFAULT.GenerateFloor(totalmaze);
    //Maze setup
    let mazesize = 24; //Should be 48 max
    const maze = MAZE.GetMazeWithRandomExit(mazesize / 2);
-   MAZE.GenerateMazeStructure(scene, maze);
+   MAZE.GenerateMazeStructure(totalmaze, maze);
+
+   const zeroposition = new THREE.BoxGeometry();
+   const mat = new THREE.MeshBasicMaterial({ color: 0x880000 });
+   const mesh = new THREE.Mesh(zeroposition, mat);
+   scene.add(mesh);
 
    //Player
    let playerinfo = USER.CreatePlayer(scene, playerStartPos, { x: 0, y: 0, z: 0 }, renderer);
    //camera = playerinfo.camera;
-   let camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
    camera.position.set(camerapos.x, camerapos.y, camerapos.z);
    scene.add(camera);
+   scene.add(totalmaze);
+   totalmaze.position.x = 15;
+   totalmaze.position.z = 10;
    //Models
    //OBJECTS.Load(scene);
-   //let controls = new OrbitControls(camera, renderer.domElement);
+   let controls = new OrbitControls(camera, renderer.domElement);
 
    renderer.shadowMap.enabled = true;
    renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -70,16 +108,14 @@ window.onload = function () {
    document.body.appendChild(renderer.domElement);
    document.body.appendChild(VRButton.createButton(renderer));
 
-   let first = true;
    renderer.xr.getCamera().position.copy(camera.position);
 
    function render() {
-      playerinfo.updatePosition(camerapos.x, camerapos.y, camerapos.z);
-      console.log(camera.position);
-      if (first) {
-         first = false;
+      updateVRCamera();
+      if (skycam) {
+         camera.position.set(10, 50, 0);
+         camera.rotation.set(-Math.PI / 2, 0, 0);
       }
-      camera.position.set(-21, 16.4, -11.76);
       renderer.render(scene, camera);
    }
    renderer.setAnimationLoop(render);

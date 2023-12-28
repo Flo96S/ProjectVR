@@ -10,15 +10,13 @@ export function CreatePlayer(scene, _position, _rotation, renderer) {
    let rotation = _rotation;
    let leftHandPosition = { x: 0, y: 0, z: 0 };
    let RightHandPosition = { x: 0, y: 0, z: 0 };
-   let BagLeft = -1;
-   let BagRight = -1;
-   let HandLeft = -1;
-   let HandRight = -1;
+   let gotKey = -1;
    let controllerLeft = undefined;
    let controllerRight = undefined;
    let player = new THREE.Group();
    let color = '0xff0000';
-   let camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+   let camera = renderer.xr.getCamera();
+   camera.position.set(5, 1.6, 5);
    scene.add(camera);
 
    function Update() {
@@ -57,19 +55,20 @@ export function CreatePlayer(scene, _position, _rotation, renderer) {
 
    function createPlayer() {
       const headset = LoadHeadset();
-      const body = LoadBody();
+      LoadBody();
       player.matrixAutoUpdate = false;
       player.position.set(position.x, position.y, position.z);
       player.updateMatrix();
-      if (headset != undefined) {
-         console.log("Added headset");
-         player.add(headset);
-      }
       scene.add(player);
    }
 
-   function updatePosition(x, y, z) {
-      camera.position.set(x, y, z)
+   function updatePosition(_position) {
+      position = _position;
+      camera.position.set(_position.x, _position.y, _position.z)
+   }
+
+   function getPosition() {
+      return position;
    }
 
    function initControllers() {
@@ -78,5 +77,5 @@ export function CreatePlayer(scene, _position, _rotation, renderer) {
 
    Init();
 
-   return { camera, updatePosition };
+   return { camera, updatePosition, getPosition };
 }

@@ -181,7 +181,10 @@ export function GetMazeWithRandomExit(size) {
 
 export function GenerateMazeStructure(scene, maze) {
    const texture = new THREE.TextureLoader().load('assets/beton/material.png');
+   const floortexture = new THREE.TextureLoader().load('assets/beton/floor.png');
    const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0xbbbbbb });
+   const basicfloor = new THREE.MeshBasicMaterial({ map: floortexture, color: 0xbbbbbb });
+
    let mazegroup = new THREE.Group();
    let x = 0;
    let y = 0;
@@ -192,6 +195,13 @@ export function GenerateMazeStructure(scene, maze) {
             const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, basicmaterial);
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.castShadow = true;
+            mazegroup.add(object);
+         }
+         else if (cell == 1) {
+            const boxg = new THREE.BoxGeometry(boxsizexy, 0.001, boxsizexy);
+            const object = new THREE.Mesh(boxg, basicfloor);
+            object.position.set((x * boxsizexy) + mazeX, -boxsizez / 2, (y * boxsizexy) + mazeY);
             object.castShadow = true;
             mazegroup.add(object);
          }

@@ -17,14 +17,21 @@ export function createVRcontrollers(scene, renderer, connect_cb) {
       controller.addEventListener('squeezestart', () => {
          console.log(`Controller ${id} squeezes`);
          controller.userData.isSqueezeing = true;
+         if (id == 0) {
+            //Right controller squezed
+            console.log("Right controller started!")
+         }
       });
       controller.addEventListener('squeezeend', () => {
          console.log(`Controller ${id} squeeze ends`);
+         if (id == 0) {
+            //Right controller squezed teleport?
+            console.log("Right controller ended!")
+         }
          controller.userData.isSqueezeing = false;
       });
       controller.addEventListener('connected', function (event) {
          console.log(`controller connects ${id} mode ${event.data.targetRayMode} ${event.data.handedness} hand`);
-         // inform app that we have a controller
          connect_cb(controller, event.data);
       });
       controller.addEventListener('disconnected', () => {
@@ -39,6 +46,7 @@ export function createVRcontrollers(scene, renderer, connect_cb) {
       scene.add(controllerGrip);
       return { controller, controllerGrip };
    }
+
    let controller1 = getController(0);
    let controller2 = getController(1);
 
