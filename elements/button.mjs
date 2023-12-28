@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-export function CreateLever(scene, _position, rotation, callback) {
+export function CreateLever(scene, callback) {
    let toggled = false;
-   const scale = 1;
-   const position = _position;
    const pos = { x: -10.85, y: 1.4, z: -10 };
 
    function createLever() {

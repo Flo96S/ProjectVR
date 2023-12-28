@@ -21,11 +21,10 @@ let offset = { x: 15, y: 0, z: 10 };
 let scene = new THREE.Scene();
 let totalmaze = new THREE.Group();
 
-let lever = LEVER.CreateLever(totalmaze, { x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0 }, () => { });
+let lever = LEVER.CreateLever(totalmaze, () => { });
 
 let skycam = false;
 
-//1.6 = 1.6m
 let renderer = new THREE.WebGLRenderer({
    antialias: true,
    alpha: false
@@ -58,12 +57,6 @@ renderer.xr.addEventListener('sessionstart', () => {
    if (camera === undefined) {
       renderer.xr.getCamera().position.set(1, 1.6, 1);
    } else {
-      // const baseReference = renderer.xr.getReferenceSpace();
-      // const offset = camera.position;
-      // const offsetrot = camera.quaternion;
-      // const transform = new XRRigidTransform(offset, { x: offsetrot.x, y: -(offsetrot.y), z: offset.z, w: offset.w });
-      // const teleportSpaceOffset = baseReference.getOffsetReferenceSpace(transform);
-      // renderer.xr.setReferenceSpace(teleportSpaceOffset);
       console.log("FOUND CAMERA");
    }
 });
