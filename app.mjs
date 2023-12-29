@@ -10,42 +10,29 @@ import { VRButton } from './jsm/webxr/VRButton.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import * as LEVER from './elements/button.mjs';
 import { createVRcontrollers } from './elements/controlls.mjs';
+import { createText } from './elements/text.mjs';
 
-const MOVESCALE = 0.01;
+const MOVESCALE = 0.015;
 let camerapos = { x: 0, y: 1.6, z: 0 };
 let vr = false;
 let experimental = false;
-let playerStartPos = { x: 0, y: 0, z: 0 };
 let camera = undefined;
 let controllerOne, controllerTwo;
 let offset = { x: 15, y: 0, z: 10 };
 //New scene
 let scene = new THREE.Scene();
 let totalmaze = new THREE.Group();
-
 let lever = LEVER.CreateLever(totalmaze, () => { });
-
 let skycam = false;
+let doorOpened = false;
 
 let renderer = new THREE.WebGLRenderer({
    antialias: true,
    alpha: false
 });
 
-document.addEventListener('keydown', (e) => {
-   console.log(e.key);
-   if (e.key == "ArrowLeft") {
-      offset.x -= 0.5;
-   } else if (e.key == "ArrowRight") {
-      offset.x += 0.5;
-   } else if (e.key == "ArrowUp") {
-      offset.z -= 0.5;
-   } else if (e.key == "ArrowDown") {
-      offset.z += 0.5;
-   } else if (e.key == "s") {
-      lever.changeState();
-   }
-})
+//Pressed Buttons
+let A = false;
 
 //axes, buttons, hapticActuators
 //ControllerOne = right
@@ -57,17 +44,70 @@ document.addEventListener('keydown', (e) => {
 
 //buttons -> 4 -> pressed/touched/value -> Button X
 //buttons -> 5 -> pressed/touched/value -> Button Y
-function updateVRCamera() {
-   if (vr) {
-      let rotation = renderer.xr.getCamera().rotation;
-      console.log(rotation);
-      let coords = controllerOne.gamepad.axes;
-      //console.log(coords);
 
-      offset.x -= coords[2] * MOVESCALE;
-      offset.z -= coords[3] * MOVESCALE;
-      //Check if buttons pressed
+function checkControllerButtons() {
+   if (!vr) return;
+   if (!controllerOne) return;
+   if (!controllerTwo) return;
+
+   let aPressed = controllerOne.gamepad.buttons[4].pressed;
+   let triggerPressedRight = controllerOne.gamepad.buttons[0].pressed;
+   if (!A && aPressed) {
+      A = true;
+      let overlapping = lever.checkOverlapp(controllerOne, controllerTwo, offset);
+      console.log(overlapping);
+      if (overlapping) {
+         rumble("right", 1, 750);
+      }
+   } else if (A && aPressed) {
+
+   } else {
+      A = false;
    }
+
+}
+
+function checkDoor() {
+   let currentLeverState = lever.getState();
+   if (currentLeverState != doorOpened) {
+      doorOpened = currentLeverState;
+      let door = scene.getObjectByName("entry", true);
+      if (doorOpened) {
+         door.visible = false;
+      } else {
+         door.visible = true;
+      }
+   }
+}
+
+function rumble(controller, intensity, duration) {
+   if (!vr) return;
+   if (controller == "right") {
+      if (controllerOne) {
+         if (controllerOne.gamepad.hapticActuators && controllerOne.gamepad.hapticActuators.length > 0) {
+            controllerOne.gamepad.hapticActuators[0].pulse(intensity, duration);
+         }
+      }
+   } else if (controller == "left") {
+      if (controllerTwo.gamepad.hapticActuators && controllerTwo.gamepad.hapticActuators.length > 0) {
+         controllerTwo.gamepad.hapticActuators[0].pulse(intensity, duration);
+      }
+   }
+}
+
+function updateVRCameraPosition() {
+   if (!vr) return;
+   if (!controllerOne) return;
+   if (!controllerTwo) return;
+   const coords = controllerOne.gamepad.axes;
+   const [nil, nol, horizontal, vertical] = coords;
+   const movementDirection = new THREE.Vector3(horizontal, 0, vertical);
+   const headsetRotation = new THREE.Quaternion();
+   renderer.xr.getCamera().getWorldQuaternion(headsetRotation);
+   movementDirection.applyQuaternion(headsetRotation);
+   movementDirection.normalize();
+   offset.x -= movementDirection.x * MOVESCALE;
+   offset.z -= movementDirection.z * MOVESCALE;
    totalmaze.position.x = offset.x;
    totalmaze.position.y = offset.y;
    totalmaze.position.z = offset.z;
@@ -79,23 +119,23 @@ renderer.xr.addEventListener('sessionstart', () => {
       renderer.xr.getCamera().position.set(1, 1.6, 1);
    } else {
       console.log("FOUND CAMERA");
-      //let { controller1, controller2 } = createVRcontrollers(scene, renderer, (controller, eventdata) => { console.log("Done") })
-
-      controllerOne = renderer.xr.getController(0);
-      controllerOne.addEventListener('connected', (e) => {
-         controllerOne.gamepad = e.data.gamepad;
-      });
-      controllerTwo = renderer.xr.getController(1);
-      controllerTwo.addEventListener('connected', (e) => {
-         controllerTwo.gamepad = e.data.gamepad;
+      let { controller1, controller2 } = createVRcontrollers(scene, renderer, (controller, eventdata) => {
+         if (eventdata.handedness == "right") {
+            controllerOne = controller;
+            controllerOne.gamepad = eventdata.gamepad;
+            controllerOne.hand = eventdata.handedness;
+         } else {
+            controllerTwo = controller;
+            controllerTwo.gamepad = eventdata.gamepad;
+            controllerTwo.hand = eventdata.handedness;
+         }
       });
       vr = true;
    }
 });
 
-
 window.onload = function () {
-
+   totalmaze.name = "totalmaze";
    //Scene setup
    DEFAULT.GenerateScene(totalmaze);
    //Ground setup
@@ -110,9 +150,6 @@ window.onload = function () {
    const mesh = new THREE.Mesh(zeroposition, mat);
    scene.add(mesh);
 
-   //Player
-   //let playerinfo = USER.CreatePlayer(scene, playerStartPos, { x: 0, y: 0, z: 0 }, renderer);
-   //camera = playerinfo.camera;
    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
    camera.position.set(camerapos.x, camerapos.y, camerapos.z);
    scene.add(camera);
@@ -132,14 +169,21 @@ window.onload = function () {
    document.body.appendChild(renderer.domElement);
    document.body.appendChild(VRButton.createButton(renderer));
 
-   //renderer.xr.getCamera().position.copy(camera.position);
-
+   let num = 0;
    function render() {
-      updateVRCamera();
+      checkControllerButtons();
+      updateVRCameraPosition();
+      //Only check after some time
+      if (num > 60) {
+         num = 0;
+         console.log("Check");
+         checkDoor();
+      }
       if (skycam) {
          camera.position.set(10, 50, 0);
          camera.rotation.set(-Math.PI / 2, 0, 0);
       }
+      num++;
       renderer.render(scene, camera);
    }
    renderer.setAnimationLoop(render);

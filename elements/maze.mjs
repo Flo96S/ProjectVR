@@ -186,6 +186,7 @@ export function GenerateMazeStructure(scene, maze) {
    const basicfloor = new THREE.MeshBasicMaterial({ map: floortexture, color: 0xbbbbbb });
 
    let mazegroup = new THREE.Group();
+   mazegroup.name = "maze";
    let x = 0;
    let y = 0;
    GenerateStartWalls(scene);
@@ -208,6 +209,7 @@ export function GenerateMazeStructure(scene, maze) {
          else if (cell == 2) {
             const boxg = new THREE.BoxGeometry(boxsizexy / 2, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x33ff33 }))
+            object.name = "entry";
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
             object.castShadow = true;
             mazegroup.add(object);
