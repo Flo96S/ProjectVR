@@ -3,7 +3,7 @@ import * as THREE from 'three';
 export function CreateSky(scene) {
    const geo = new THREE.SphereGeometry(100, 256, 256);
    const textureloader = new THREE.TextureLoader();
-   const skytexture = textureloader.load('../elements/sky.jpg');
+   const skytexture = textureloader.load('./elements/sky.jpg');
    const skyMaterial = new THREE.MeshPhongMaterial({
       map: skytexture,
    });
@@ -18,7 +18,7 @@ export function CreateSky(scene) {
 export function CreateSkybox(scene) {
    const geo = new THREE.BoxGeometry(200, 200, 200);
    const textureloader = new THREE.TextureLoader();
-   const skytexture = textureloader.load('../elements/sky.jpg');
+   const skytexture = textureloader.load('./elements/sky.jpg');
    const skyMaterial = new THREE.MeshPhongMaterial({
       map: skytexture,
       color: 0xffffff,

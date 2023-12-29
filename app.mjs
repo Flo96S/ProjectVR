@@ -52,14 +52,15 @@ function checkControllerButtons() {
 
    let aPressed = controllerOne.gamepad.buttons[4].pressed;
    let triggerPressedRight = controllerOne.gamepad.buttons[0].pressed;
-   if (!A && aPressed) {
+   let triggerPressedLeft = controllerTwo.gamepad.buttons[0].pressed;
+   if (!A && aPressed || !A && triggerPressedLeft || !A && triggerPressedRight) {
       A = true;
       let overlapping = lever.checkOverlapp(controllerOne, controllerTwo, offset);
       console.log(overlapping);
       if (overlapping) {
          rumble("right", 1, 750);
       }
-   } else if (A && aPressed) {
+   } else if (A && aPressed || A && triggerPressedLeft || A && triggerPressedRight) {
 
    } else {
       A = false;
@@ -141,7 +142,7 @@ window.onload = function () {
    //Ground setup
    DEFAULT.GenerateFloor(totalmaze);
    //Maze setup
-   let mazesize = 24; //Should be 48 max
+   let mazesize = 12; //Should be 48 max
    const maze = MAZE.GetMazeWithRandomExit(mazesize / 2);
    MAZE.GenerateMazeStructure(totalmaze, maze);
 

@@ -8,7 +8,7 @@ export function CreateLever(scene, callback) {
    const listener = new THREE.AudioListener();
    const sound = new THREE.Audio(listener);
    const audioLoader = new THREE.AudioLoader();
-   audioLoader.load('../assets/sound/lever.ogg', function (buffer) {
+   audioLoader.load('./assets/sound/lever.ogg', function (buffer) {
       sound.setBuffer(buffer);
       sound.setLoop(false);
       sound.setVolume(0.5);

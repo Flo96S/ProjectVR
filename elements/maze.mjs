@@ -1,3 +1,4 @@
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { GenerateStartWalls } from './entrywalls.mjs'
 import * as THREE from 'three';
 
@@ -184,6 +185,15 @@ export function GenerateMazeStructure(scene, maze) {
    const floortexture = new THREE.TextureLoader().load('assets/beton/floor.png');
    const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0xbbbbbb });
    const basicfloor = new THREE.MeshBasicMaterial({ map: floortexture, color: 0xbbbbbb });
+   const loader = new GLTFLoader();
+   let key;
+   loader.load('./models/goldkey.glb', function (gltf) {
+      key = gltf.scene;
+      key.scale.set(0.65, 0.65, 0.65);
+   }, undefined, function (error) {
+      console.error("Could not load model key");
+      console.error(error);
+   });
 
    let mazegroup = new THREE.Group();
    mazegroup.name = "maze";
@@ -230,11 +240,17 @@ export function GenerateMazeStructure(scene, maze) {
             }
          }
          else if (cell == 7) {
-            const boxg = new THREE.SphereGeometry(0.6, 16, 16);
-            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
-            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
-            object.castShadow = true;
-            mazegroup.add(object);
+            if (key) {
+               key.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+               object.castShadow = true;
+               mazegroup.add(key);
+            } else {
+               const boxg = new THREE.SphereGeometry(0.6, 16, 16);
+               const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
+               object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+               object.castShadow = true;
+               mazegroup.add(object);
+            }
          }
          y++;
       }
