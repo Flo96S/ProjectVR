@@ -74,15 +74,18 @@ export function CreateLever(scene, callback) {
             console.error("could not load model");
          });
       }
+      callback();
    }
 
    function checkOverlapp(controllerOne, controllerTwo, worldoffset) {
+      let overlapp = false;
       const x = boundingBox.clone().translate(worldoffset);
       if (controllerOne.position.x >= x.min.x && controllerOne.position.x <= x.max.x) {
          if (controllerOne.position.y >= x.min.y && controllerOne.position.y <= x.max.y) {
             if (controllerOne.position.z >= x.min.z && controllerOne.position.z <= x.max.z) {
                changeState();
-               return true;
+               controllerOne.rumble("right", 0.75, 500);
+               overlapp = true;
             }
          }
       }
@@ -90,11 +93,12 @@ export function CreateLever(scene, callback) {
          if (controllerTwo.position.y >= x.min.y && controllerTwo.position.y <= x.max.y) {
             if (controllerTwo.position.z >= x.min.z && controllerTwo.position.z <= x.max.z) {
                changeState();
-               return true;
+               controllerOne.rumble("left", 0.75, 500);
+               overlapp = overlapp || true;
             }
          }
       }
-      return false;
+      return overlapp;
    }
 
    createLever();

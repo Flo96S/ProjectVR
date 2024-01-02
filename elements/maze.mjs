@@ -180,20 +180,29 @@ export function GetMazeWithRandomExit(size) {
    return maze;
 }
 
+export function UpdateMeshes(scene) {
+   const loader = new GLTFLoader();
+   let key;
+   loader.load('./models/goldkey.glb', function (gltf) {
+      key = gltf.scene;
+      key.scale.set(0.25, 0.25, 0.25);
+      key.rotation.set(0, 0, -Math.PI / 2)
+      let x = scene.getObjectByName("key", true);
+      key.position.set(x.position.x, x.position.y, x.position.z);
+      scene.add(key);
+      console.log("Loaded");
+      console.log(key);
+   }, undefined, function (error) {
+      console.error("Could not load model key");
+      console.error(error);
+   });
+}
+
 export function GenerateMazeStructure(scene, maze) {
    const texture = new THREE.TextureLoader().load('assets/beton/material.png');
    const floortexture = new THREE.TextureLoader().load('assets/beton/floor.png');
    const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0xbbbbbb });
    const basicfloor = new THREE.MeshBasicMaterial({ map: floortexture, color: 0xbbbbbb });
-   const loader = new GLTFLoader();
-   let key;
-   loader.load('./models/goldkey.glb', function (gltf) {
-      key = gltf.scene;
-      key.scale.set(0.65, 0.65, 0.65);
-   }, undefined, function (error) {
-      console.error("Could not load model key");
-      console.error(error);
-   });
 
    let mazegroup = new THREE.Group();
    mazegroup.name = "maze";
@@ -209,14 +218,14 @@ export function GenerateMazeStructure(scene, maze) {
             object.castShadow = true;
             mazegroup.add(object);
          }
-         else if (cell == 1) {
+         else if (cell == 1 || cell == 2 || cell == 3 || cell == 7) {
             const boxg = new THREE.BoxGeometry(boxsizexy, 0.001, boxsizexy);
             const object = new THREE.Mesh(boxg, basicfloor);
             object.position.set((x * boxsizexy) + mazeX, -boxsizez / 2, (y * boxsizexy) + mazeY);
             object.castShadow = true;
             mazegroup.add(object);
          }
-         else if (cell == 2) {
+         if (cell == 2) {
             const boxg = new THREE.BoxGeometry(boxsizexy / 2, boxsizez, boxsizexy);
             const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x33ff33 }))
             object.name = "entry";
@@ -224,7 +233,7 @@ export function GenerateMazeStructure(scene, maze) {
             object.castShadow = true;
             mazegroup.add(object);
          }
-         else if (cell == 3) {
+         if (cell == 3) {
             if (x + 1 == row.length) {
                const boxg = new THREE.BoxGeometry(boxsizexy / 2, boxsizez, boxsizexy);
                const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
@@ -239,18 +248,13 @@ export function GenerateMazeStructure(scene, maze) {
                mazegroup.add(object);
             }
          }
-         else if (cell == 7) {
-            if (key) {
-               key.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
-               object.castShadow = true;
-               mazegroup.add(key);
-            } else {
-               const boxg = new THREE.SphereGeometry(0.6, 16, 16);
-               const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff }))
-               object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
-               object.castShadow = true;
-               mazegroup.add(object);
-            }
+         if (cell == 7) {
+            const boxg = new THREE.SphereGeometry(0.6, 16, 16);
+            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff, transparent: true, opacity: 0.25 }))
+            object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
+            object.castShadow = true;
+            object.name = "key";
+            mazegroup.add(object);
          }
          y++;
       }
@@ -258,5 +262,6 @@ export function GenerateMazeStructure(scene, maze) {
       y = 0;
    }
    mazegroup.position.set(0, boxsizez * 0.5, 0);
+   UpdateMeshes(mazegroup);
    scene.add(mazegroup);
 }
