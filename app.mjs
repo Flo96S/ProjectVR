@@ -4,16 +4,15 @@ import * as BACKEND from './elements/backend.mjs';
 import * as USER from './elements/character.mjs';
 import * as DEFAULT from './elements/scenesetup.mjs';
 import * as OBJECTS from './elements/playobjects.mjs';
-import * as TEXT from './elements/board.mjs';
 import { MapItem } from './elements/map.mjs';
 import { VRButton } from './jsm/webxr/VRButton.js';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as LEVER from './elements/button.mjs';
 import { createVRcontrollers } from './elements/controlls.mjs';
-import { createText } from './elements/text.mjs';
+import { createTextSprite } from './elements/text.mjs';
+import { CreateBoard } from './elements/board.mjs';
 
-const MOVESCALE = 0.015;
+let movescale = 0.015;
 let camerapos = { x: 0, y: 1.6, z: 0 };
 let vr = false;
 let experimental = false;
@@ -24,10 +23,12 @@ let offset = { x: 15, y: 0, z: 10 };
 let scene = new THREE.Scene();
 let totalmaze = new THREE.Group();
 let lever = LEVER.CreateLever(totalmaze, () => updateDoor());
-let skycam = false;
 let doorOpened = false;
 let exitDoorOpened = false;
+let key = false;
 let floormarker;
+
+let skycam = false;
 
 let renderer = new THREE.WebGLRenderer({
    antialias: true,
@@ -41,12 +42,6 @@ loader.load('./models/center.glb', function (gltf) {
    floormarker.position.set(0, 0.001, 0);
    floormarker.scale.set(0.25, 0.25, 0.25);
    floormarker.rotation.set(0, Math.PI / 2, 0);
-
-   const holo = new THREE.MeshStandardMaterial({
-      transparent: true,
-      opacity: 0.5,
-      color: 0x0000ff
-   });
    scene.add(floormarker);
 }, undefined, function (error) {
    console.error("could not load model");
@@ -66,23 +61,50 @@ let A = false;
 //buttons -> 4 -> pressed/touched/value -> Button X
 //buttons -> 5 -> pressed/touched/value -> Button Y
 
+function updateMovespeed(pressed) {
+   if (pressed) {
+      movescale = 0.025;
+   } else {
+      movescale = 0.015;
+   }
+}
+
+
 function checkControllerButtons() {
    if (!vr) return;
-   if (!controllerOne) return;
-   if (!controllerTwo) return;
+   if (controllerOne === undefined) return;
+   if (controllerTwo === undefined) return;
 
    let aPressed = controllerOne.gamepad.buttons[4].pressed;
    let triggerPressedRight = controllerOne.gamepad.buttons[0].pressed;
    let triggerPressedLeft = controllerTwo.gamepad.buttons[0].pressed;
+   let grippressedRight = controllerOne.gamepad.buttons[1].pressed;
+   let grippressedLeft = controllerTwo.gamepad.buttons[1].pressed;
+   //Interact
    if (!A && aPressed || !A && triggerPressedLeft || !A && triggerPressedRight) {
       A = true;
       let overlapping = lever.checkOverlapp(controllerOne, controllerTwo, offset);
+      key = MAZE.ClickedKey(scene);
+      if (key) {
+         doorOpened = true;
+      }
    } else if (A && aPressed || A && triggerPressedLeft || A && triggerPressedRight) {
 
    } else {
       A = false;
    }
 
+   if (grippressedLeft) {
+      updateMovespeed(true);
+   } else {
+      updateMovespeed(false);
+   }
+
+   if (grippressedRight) {
+      updateMovespeed(true);
+   } else {
+      updateMovespeed(false);
+   }
 }
 
 function updateDoor() {
@@ -94,6 +116,14 @@ function updateDoor() {
          door.visible = false;
       } else {
          door.visible = true;
+      }
+   }
+
+   if (doorOpened) {
+      let exitDoor = scene.getObjectByName("exit", true);
+      console.log(exitDoor);
+      if (exitDoor) {
+         exitDoor.visible = false;
       }
    }
 }
@@ -117,15 +147,15 @@ function updateVRCameraPosition() {
    if (!vr) return;
    if (!controllerOne) return;
    if (!controllerTwo) return;
-   const coords = controllerOne.gamepad.axes;
+   const coords = controllerTwo.gamepad.axes;
    const [nil, nol, horizontal, vertical] = coords;
    const movementDirection = new THREE.Vector3(horizontal, 0, vertical);
    const headsetRotation = new THREE.Quaternion();
    renderer.xr.getCamera().getWorldQuaternion(headsetRotation);
    movementDirection.applyQuaternion(headsetRotation);
    movementDirection.normalize();
-   offset.x -= movementDirection.x * MOVESCALE;
-   offset.z -= movementDirection.z * MOVESCALE;
+   offset.x -= movementDirection.x * movescale;
+   offset.z -= movementDirection.z * movescale;
    totalmaze.position.x = offset.x;
    totalmaze.position.y = offset.y;
    totalmaze.position.z = offset.z;
@@ -156,6 +186,9 @@ renderer.xr.addEventListener('sessionstart', () => {
       vr = true;
    }
 });
+
+CreateBoard(totalmaze, { x: -15, y: 2, z: -13 }, "0", { x: 0, y: 0, z: 0 });
+createTextSprite(totalmaze, { x: -18, y: 0, z: -14 }, { x: 0, y: 0, z: 0 }, 'Hello', 0x00ff00, 1.5, 0.2);
 
 window.onload = function () {
    totalmaze.name = "totalmaze";
@@ -189,14 +222,16 @@ window.onload = function () {
 
    let num = 0;
    function render() {
-      checkControllerButtons();
-      updateVRCameraPosition();
-      //Only check after some time
-      if (num > 60) {
-         num = 0;
-         console.log("Check");
-         //checkDoor();
+      if (vr) {
+         checkControllerButtons();
+         updateVRCameraPosition();
+         //Only check after some time
+         if (num > 60) {
+            MAZE.CheckSceneForKeyHover(scene, controllerOne, controllerTwo, offset);
+            num = 0;
+         }
       }
+
       if (skycam) {
          camera.position.set(10, 30, 0);
          camera.rotation.set(-Math.PI / 2, 0, 0);

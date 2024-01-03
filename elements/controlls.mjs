@@ -7,36 +7,28 @@ export function createVRcontrollers(scene, renderer, connect_cb) {
    function getController(id) {
       let controller = renderer.xr.getController(id);
       controller.addEventListener('selectstart', () => {
-         console.log(`Controller ${id} selects`);
          controller.userData.isSelecting = true;
       });
       controller.addEventListener('selectend', () => {
-         console.log(`Controller ${id} select ends`);
          controller.userData.isSelecting = false;
       });
       controller.addEventListener('squeezestart', () => {
-         console.log(`Controller ${id} squeezes`);
          controller.userData.isSqueezeing = true;
          if (id == 0) {
-            //Right controller squezed
-            console.log("Right controller started!")
+
          }
       });
       controller.addEventListener('squeezeend', () => {
-         console.log(`Controller ${id} squeeze ends`);
          if (id == 0) {
-            //Right controller squezed teleport?
-            console.log("Right controller ended!")
+
          }
          controller.userData.isSqueezeing = false;
       });
       controller.addEventListener('connected', function (event) {
-         console.log(`controller connects ${id} mode ${event.data.targetRayMode} ${event.data.handedness} hand`);
          connect_cb(controller, event.data);
       });
       controller.addEventListener('disconnected', () => {
          controller.remove(controller.children[0]);
-         console.log(`controller disconnects ${id} `);
       });
 
       scene.add(controller);

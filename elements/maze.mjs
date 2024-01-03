@@ -153,7 +153,6 @@ export function GetMazeWithRandomExit(size) {
       exitSide = 1;
    }
    let exitX, exitY;
-   console.log(exitSide);
    switch (exitSide) {
       case 0: // Oben
          exitX = 0;
@@ -186,16 +185,57 @@ export function UpdateMeshes(scene) {
    loader.load('./models/goldkey.glb', function (gltf) {
       key = gltf.scene;
       key.scale.set(0.25, 0.25, 0.25);
-      key.rotation.set(0, 0, -Math.PI / 2)
       let x = scene.getObjectByName("key", true);
       key.position.set(x.position.x, x.position.y, x.position.z);
+      key.castShadow = true;
+      key.name = "keymesh";
       scene.add(key);
-      console.log("Loaded");
-      console.log(key);
+      return key;
    }, undefined, function (error) {
       console.error("Could not load model key");
       console.error(error);
    });
+   return undefined;
+}
+
+export function ClickedKey(scene) {
+   if (hovered || currentlyhover) {
+      //Key collected
+      scene.getObjectByName("key").visible = false;
+      scene.getObjectByName("keymesh").visible = false;
+      scene.getObjectByName("exit").visible = false;
+      return true;
+   }
+   return false;
+}
+
+const colornormal = new THREE.MeshStandardMaterial({ color: 0x7767ff, transparent: true, opacity: 0.25 });
+const colorhover = new THREE.MeshStandardMaterial({ color: 0x67ff8a, transparent: true, opacity: 0.25 });
+let hovered = false;
+let currentlyhover = false;
+
+export function CheckSceneForKeyHover(scene, controllerOne, controllerTwo, offset) {
+   let keysphere = scene.getObjectByName("key");
+   if (keysphere === undefined) return;
+   if (controllerOne === undefined) return;
+   if (controllerTwo === undefined) return;
+   let position = new THREE.Vector3(keysphere.position.x, keysphere.position.y, keysphere.position.z);
+   position.x += offset.x;
+   position.y += offset.y + 1;
+   position.z += offset.z;
+   const distance = controllerOne.position.distanceTo(position);
+   if (distance < 0.8) {
+      currentlyhover = true;
+   } else {
+      currentlyhover = false;
+   }
+   if (currentlyhover == hovered) return;
+   hovered = currentlyhover;
+   if (hovered) {
+      keysphere.material = colorhover;
+   } else {
+      keysphere.material = colornormal;
+   }
 }
 
 export function GenerateMazeStructure(scene, maze) {
@@ -239,18 +279,20 @@ export function GenerateMazeStructure(scene, maze) {
                const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
                object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
                object.castShadow = true;
+               object.name = "exit";
                mazegroup.add(object);
             } else if (y + 1 == maze.length) {
                const boxg = new THREE.BoxGeometry(boxsizexy, boxsizez, boxsizexy / 2);
                const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x3333ff }))
                object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
                object.castShadow = true;
+               object.name = "exit";
                mazegroup.add(object);
             }
          }
          if (cell == 7) {
-            const boxg = new THREE.SphereGeometry(0.6, 16, 16);
-            const object = new THREE.Mesh(boxg, new THREE.MeshStandardMaterial({ color: 0x7767ff, transparent: true, opacity: 0.25 }))
+            const boxg = new THREE.SphereGeometry(0.5, 12, 12);
+            const object = new THREE.Mesh(boxg, colornormal);
             object.position.set((x * boxsizexy) + mazeX, 0, (y * boxsizexy) + mazeY);
             object.castShadow = true;
             object.name = "key";
@@ -262,6 +304,7 @@ export function GenerateMazeStructure(scene, maze) {
       y = 0;
    }
    mazegroup.position.set(0, boxsizez * 0.5, 0);
-   UpdateMeshes(mazegroup);
+   let key = UpdateMeshes(mazegroup);
    scene.add(mazegroup);
+   return key;
 }
