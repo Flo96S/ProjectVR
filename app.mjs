@@ -15,7 +15,6 @@ import { CreateBoard } from './elements/board.mjs';
 let movescale = 0.015;
 let camerapos = { x: 0, y: 1.6, z: 0 };
 let vr = false;
-let experimental = false;
 let camera = undefined;
 let controllerOne, controllerTwo;
 let offset = { x: 15, y: 0, z: 10 };
@@ -23,10 +22,12 @@ let offset = { x: 15, y: 0, z: 10 };
 let scene = new THREE.Scene();
 let totalmaze = new THREE.Group();
 let lever = LEVER.CreateLever(totalmaze, () => updateDoor());
+let board;
 let doorOpened = false;
-let exitDoorOpened = false;
 let key = false;
 let floormarker;
+let xrsupported = false;
+let mazesizeControll = 12;
 
 let skycam = false;
 
@@ -69,24 +70,38 @@ function updateMovespeed(pressed) {
    }
 }
 
+function checkXRSession() {
+   if ('xr' in navigator) {
+      const button = VRButton.createButton(renderer);
+      document.body.appendChild(button);
+      xrsupported = true;
+   }
+}
 
 function checkControllerButtons() {
    if (!vr) return;
    if (controllerOne === undefined) return;
    if (controllerTwo === undefined) return;
+   if (controllerOne.gamepad === undefined) return;
+   if (controllerTwo.gamepad === undefined) return;
 
    let aPressed = controllerOne.gamepad.buttons[4].pressed;
    let triggerPressedRight = controllerOne.gamepad.buttons[0].pressed;
    let triggerPressedLeft = controllerTwo.gamepad.buttons[0].pressed;
    let grippressedRight = controllerOne.gamepad.buttons[1].pressed;
    let grippressedLeft = controllerTwo.gamepad.buttons[1].pressed;
+   console.log("GrippressedLeft" + grippressedLeft);
    //Interact
    if (!A && aPressed || !A && triggerPressedLeft || !A && triggerPressedRight) {
       A = true;
-      let overlapping = lever.checkOverlapp(controllerOne, controllerTwo, offset);
+      lever.checkOverlapp(controllerOne, controllerTwo, offset);
       key = MAZE.ClickedKey(scene);
+      console.log(key);
       if (key) {
-         doorOpened = true;
+         console.log("DELETE EVERYTHING");
+         scene.getObjectByName("key").visible = false;
+         scene.getObjectByName("keymesh").visible = false;
+         scene.getObjectByName("exit").visible = false;
       }
    } else if (A && aPressed || A && triggerPressedLeft || A && triggerPressedRight) {
 
@@ -119,7 +134,7 @@ function updateDoor() {
       }
    }
 
-   if (doorOpened) {
+   if (key) {
       let exitDoor = scene.getObjectByName("exit", true);
       console.log(exitDoor);
       if (exitDoor) {
@@ -140,6 +155,16 @@ function rumble(controller, intensity, duration) {
       if (controllerTwo.gamepad.hapticActuators && controllerTwo.gamepad.hapticActuators.length > 0) {
          controllerTwo.gamepad.hapticActuators[0].pulse(intensity, duration);
       }
+   }
+}
+
+function checkCollision() {
+   let player = renderer.xr.getCamera();
+   console.log(player.children[0]);
+   const ray = new THREE.Ray(player.children[0].position, new THREE.Vector3(0, 0, -1));
+   const intersects = ray.intersectsBox(scene.children.filter(obj => obj !== player))
+   if (intersects.length > 0) {
+      console.log("Collision");
    }
 }
 
@@ -165,9 +190,9 @@ function updateVRCameraPosition() {
 }
 
 renderer.xr.addEventListener('sessionstart', () => {
-   console.log("Start VR");
    if (camera === undefined) {
-      renderer.xr.getCamera().position.set(1, 1.6, 1);
+      camera = renderer.xr.getCamera();
+      //renderer.xr.getCamera().position.set(1, 1.6, 1);
    } else {
       console.log("FOUND CAMERA");
       let { controller1, controller2 } = createVRcontrollers(scene, renderer, (controller, eventdata) => {
@@ -187,19 +212,25 @@ renderer.xr.addEventListener('sessionstart', () => {
    }
 });
 
-CreateBoard(totalmaze, { x: -15, y: 2, z: -13 }, "0", { x: 0, y: 0, z: 0 });
-createTextSprite(totalmaze, { x: -18, y: 0, z: -14 }, { x: 0, y: 0, z: 0 }, 'Hello', 0x00ff00, 1.5, 0.2);
+checkXRSession();
 
 window.onload = function () {
-   totalmaze.name = "totalmaze";
-   //Scene setup
-   DEFAULT.GenerateScene(totalmaze);
-   //Ground setup
-   DEFAULT.GenerateFloor(totalmaze);
-   //Maze setup
-   let mazesize = 12; //Should be 48 max
-   const maze = MAZE.GetMazeWithRandomExit(mazesize / 2);
-   MAZE.GenerateMazeStructure(totalmaze, maze);
+   console.log(xrsupported);
+   if (xrsupported) {
+      board = CreateBoard(totalmaze, { x: -15, y: 1.4, z: -11 }, mazesizeControll, { x: 0, y: 0, z: 0 });
+      totalmaze.name = "totalmaze";
+      //Scene setup
+      DEFAULT.GenerateScene(totalmaze);
+      //Ground setup
+      DEFAULT.GenerateFloor(totalmaze);
+      //Maze setup
+      let mazesize = 12;
+      const maze = MAZE.GetMazeWithRandomExit(mazesize / 2);
+      MAZE.GenerateMazeStructure(totalmaze, maze);
+   } else {
+      DEFAULT.GenerateScene(totalmaze);
+      createTextSprite(totalmaze, { x: -21.5, y: 0, z: -18 }, { x: 0, y: 0, z: 0 }, 'Not supported', 0xff0000, 1.5, 0.2);
+   }
 
    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
    camera.position.set(camerapos.x, camerapos.y, camerapos.z);
@@ -218,17 +249,28 @@ window.onload = function () {
    renderer.xr.enabled = true;
 
    document.body.appendChild(renderer.domElement);
-   document.body.appendChild(VRButton.createButton(renderer));
 
    let num = 0;
+   let x = 0;
    function render() {
       if (vr) {
          checkControllerButtons();
          updateVRCameraPosition();
+         //checkCollision();
+         board.checkForButtonChange(controllerOne, controllerTwo, offset);
          //Only check after some time
          if (num > 60) {
             MAZE.CheckSceneForKeyHover(scene, controllerOne, controllerTwo, offset);
             num = 0;
+            x++;
+         }
+         if (x > 5) {
+            x = 0;
+            if (movescale > 0.015) {
+               rumble('left', 0.1, 100);
+               rumble('right', 0.1, 100);
+            }
+            //board.updateText("Hello");
          }
       }
 

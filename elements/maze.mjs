@@ -198,12 +198,17 @@ export function UpdateMeshes(scene) {
    return undefined;
 }
 
-export function ClickedKey(scene) {
+export function ClickedKey() {
+   const listener = new THREE.AudioListener();
+   const sound = new THREE.Audio(listener);
+   const audioLoader = new THREE.AudioLoader();
    if (hovered || currentlyhover) {
-      //Key collected
-      scene.getObjectByName("key").visible = false;
-      scene.getObjectByName("keymesh").visible = false;
-      scene.getObjectByName("exit").visible = false;
+      audioLoader.load('./assets/sound/salvaged.ogg', function (buffer) {
+         sound.setBuffer(buffer);
+         sound.setLoop(false);
+         sound.setVolume(0.75);
+         sound.play();
+      });
       return true;
    }
    return false;
