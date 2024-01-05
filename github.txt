@@ -1,0 +1,3 @@
+Currently not working: wall collision
+https://www.kortly.eu/mcivr
+https://github.com/Flo96S/ProjectVR
