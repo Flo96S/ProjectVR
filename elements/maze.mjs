@@ -268,6 +268,7 @@ export function GenerateMazeStructure(scene, maze) {
             const object = new THREE.Mesh(boxg, basicfloor);
             object.position.set((x * boxsizexy) + mazeX, -boxsizez / 2, (y * boxsizexy) + mazeY);
             object.castShadow = true;
+            object.receiveShadow = true;
             mazegroup.add(object);
          }
          if (cell == 2) {

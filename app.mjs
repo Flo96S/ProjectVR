@@ -35,6 +35,8 @@ let renderer = new THREE.WebGLRenderer({
    antialias: true,
    alpha: false,
 });
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
 
 const loader = new GLTFLoader();
 
