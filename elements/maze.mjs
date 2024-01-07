@@ -6,35 +6,6 @@ const mazeX = -10, mazeY = -10, mazeZ = 0.05;
 const boxsizexy = 1.6;
 const boxsizez = 2.35;
 
-export function GetMazeSimple() {
-   const maze_one = [
-      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-      [0, 0, 1, 1, 1, 0, 1, 1, 0, 0],
-      [0, 1, 1, 0, 0, 0, 1, 0, 1, 0],
-      [0, 0, 1, 0, 1, 0, 1, 1, 1, 0],
-      [0, 1, 1, 0, 1, 1, 0, 1, 0, 0],
-      [0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
-      [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-      [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-   ]
-   return maze_one;
-}
-
-
-export function GetMazeMedium() {
-   const maze_one = [
-      [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-      [0, 0, 1, 1, 1, 0, 1, 1, 0, 0],
-      [0, 1, 1, 0, 0, 0, 1, 0, 1, 0],
-      [0, 0, 1, 0, 1, 0, 1, 1, 1, 0],
-      [0, 1, 1, 0, 1, 1, 0, 1, 0, 0],
-      [0, 0, 1, 0, 1, 0, 0, 1, 0, 0],
-      [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-      [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-   ]
-   return maze_one;
-}
-
 export function generateMaze(rows, cols) {
    const maze = [];
    for (let i = 0; i < rows; i++) {
