@@ -2,10 +2,10 @@ import * as THREE from 'three';
 import { CreateSky, CreateSkybox } from './sky.mjs';
 
 export function GenerateScene(scene) {
-   //scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
-   scene.add(new THREE.HemisphereLight(0xaaaaaa, 0xaaaaaa, 1));
+   scene.add(new THREE.HemisphereLight(0x808080, 0x606060));
+   scene.add(new THREE.HemisphereLight(0xaaaacc, 0xaaaacc, 1));
    let light = new THREE.DirectionalLight(0xffffff, 0.75);
-   light.position.set(0, 8, 0);
+   light.position.set(0, 12, 0);
    light.castShadow = true;
    scene.add(light);
    CreateSky(scene);

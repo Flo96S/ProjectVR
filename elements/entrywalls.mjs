@@ -5,7 +5,7 @@ let position = { x: -5, y: 0, z: 0 };
 
 export function GenerateStartWalls(scene, _position) {
    const texture = new THREE.TextureLoader().load('assets/beton/material.png');
-   const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0xbbbbbb });
+   const basicmaterial = new THREE.MeshStandardMaterial({ map: texture, color: 0xbbbbbb });
    let walls = new THREE.Group();
    position = _position;
    GenerateWallOne(walls, basicmaterial);

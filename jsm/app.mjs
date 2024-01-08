@@ -92,11 +92,13 @@ function checkControllerButtons() {
    let triggerPressedLeft = controllerTwo.gamepad.buttons[0].pressed;
    let grippressedRight = controllerOne.gamepad.buttons[1].pressed;
    let grippressedLeft = controllerTwo.gamepad.buttons[1].pressed;
+   console.log("GrippressedLeft" + grippressedLeft);
    //Interact
    if (!A && aPressed || !A && triggerPressedLeft || !A && triggerPressedRight) {
       A = true;
       lever.checkOverlapp(controllerOne, controllerTwo, offset);
       key = MAZE.ClickedKey(scene);
+      console.log(key);
       if (key) {
          console.log("DELETE EVERYTHING");
          scene.getObjectByName("key").visible = false;
@@ -136,6 +138,7 @@ function updateDoor() {
 
    if (key) {
       let exitDoor = scene.getObjectByName("exit", true);
+      console.log(exitDoor);
       if (exitDoor) {
          exitDoor.visible = false;
       }
@@ -180,7 +183,6 @@ function updateVRCameraPosition() {
    movementDirection.normalize();
    offset.x -= movementDirection.x * movescale;
    offset.z -= movementDirection.z * movescale;
-
    totalmaze.position.x = offset.x;
    totalmaze.position.y = offset.y;
    totalmaze.position.z = offset.z;
@@ -229,10 +231,10 @@ window.onload = function () {
       MAZE.GenerateMazeStructure(totalmaze, maze);
    } else {
       DEFAULT.GenerateScene(totalmaze);
-      createTextSprite(totalmaze, { x: -23, y: 0, z: -20 }, { x: 0, y: 0, z: 0 }, 'XR not supported', 0xff0000, 1.5, 0.2);
+      createTextSprite(totalmaze, { x: -21.5, y: 0, z: -18 }, { x: 0, y: 0, z: 0 }, 'Not supported', 0xff0000, 1.5, 0.2);
    }
 
-   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1500);
+   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
    camera.position.set(camerapos.x, camerapos.y, camerapos.z);
    scene.add(camera);
    scene.add(totalmaze);

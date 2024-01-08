@@ -217,8 +217,8 @@ export function CheckSceneForKeyHover(scene, controllerOne, controllerTwo, offse
 export function GenerateMazeStructure(scene, maze) {
    const texture = new THREE.TextureLoader().load('assets/beton/material.png');
    const floortexture = new THREE.TextureLoader().load('assets/beton/floor.png');
-   const basicmaterial = new THREE.MeshBasicMaterial({ map: texture, color: 0xbbbbbb });
-   const basicfloor = new THREE.MeshBasicMaterial({ map: floortexture, color: 0xbbbbbb });
+   const basicmaterial = new THREE.MeshStandardMaterial({ map: texture, color: 0xbbbbbb });
+   const basicfloor = new THREE.MeshStandardMaterial({ map: floortexture, color: 0xbbbbbb });
 
    let mazegroup = new THREE.Group();
    mazegroup.name = "maze";
