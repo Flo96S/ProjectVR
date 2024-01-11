@@ -53,17 +53,6 @@ loader.load('./models/center.glb', function (gltf) {
 //Pressed Buttons
 let A = false;
 
-//axes, buttons, hapticActuators
-//ControllerOne = right
-//buttons -> 0 -> pressed/touched/value -> Button Trigger
-//buttons -> 1 -> pressed/touched/value -> Button Grip
-//buttons -> 3 -> pressed/touched/value -> Button Stick Press
-//buttons -> 4 -> pressed/touched/value -> Button A
-//buttons -> 5 -> pressed/touched/value -> Button B
-
-//buttons -> 4 -> pressed/touched/value -> Button X
-//buttons -> 5 -> pressed/touched/value -> Button Y
-
 function updateMovespeed(pressed) {
    if (pressed) {
       movescale = 0.025;
@@ -158,6 +147,7 @@ function rumble(controller, intensity, duration) {
 }
 
 function checkCollision() {
+   //Raycaster in all 4 directions
    let player = renderer.xr.getCamera();
    console.log(player.children[0]);
    const ray = new THREE.Ray(player.children[0].position, new THREE.Vector3(0, 0, -1));
